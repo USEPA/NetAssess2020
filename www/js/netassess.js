@@ -198,7 +198,7 @@ netAssess.getNewSite = function(newSite) {
   var lng = newSite._latlng.lng;
   $("#nsLat").val(Math.round(lat * 1000000) / 1000000);
   $("#nsLng").val(Math.round(lng * 1000000) / 1000000);
-  var url = "https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=" + lng + "&y=" + lat + "&benchmark=4&vintage=4&format=json"
+  var url = "https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=" + lng + "&y=" + lat + "&benchmark=4&vintage=4&format=jsonp&callback=?";
   $.getJSON(url, function(wd) {
     $("#nsState").val(wd.result.geographies.States[0].NAME);
     $("#nsCounty").val(wd.result.geographies.Counties[0].NAME);

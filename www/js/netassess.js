@@ -140,7 +140,7 @@ netAssess.map = L.map("map", {
   contextmenu: true,
   contextmenuWidth: 140,
   contextmenuItems: [
-    {text: "Full Extent", iconCls: "fa fa-serach-minus", callback: netAssess.zoomOut}  
+    {text: "Full Extent", iconCls: "fa fa-search-minus", callback: netAssess.zoomOut}  
   ],
   zoomControl: false,
   maxZoom: 12,
@@ -196,6 +196,7 @@ netAssess.setAOI = function(aoi) {
     }
   })
   document.getElementById("areaOfInterest").updateAnchor(aoiPolygons);
+  netAssess.map.addLayer(netAssess.layerGroups.aoi);
 }
 
 netAssess.getNewSite = function(newSite) {
@@ -279,7 +280,7 @@ netAssess.layerGroups.newSites.addTo(netAssess.map).bringToFront().on("click", f
     netAssess.map.removeLayer(evt.layer);
     netAssess.removeLayer = false;
   }
-});
+})
 netAssess.layerGroups.newSiteSelection.addTo(netAssess.map);
 $("#pollutantSelect").select2({width: "300px", height: "24px;"});
 $("#areaSelectSelect").select2({width: "80%"});

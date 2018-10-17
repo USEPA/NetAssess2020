@@ -53,10 +53,9 @@
         <div id="areaServedButton" class="menu-bar-item menu-bar-button action-button" title="Calculate Area Served">
           <img src="images/areaServed.png" /></div>
         <div id="cormatButton" class="menu-bar-item menu-bar-button action-button" title="View Correlation Matrix">
-          <span class="fa" style="font-family: serif; font-weight: bold; font-size: 24px;position: relative;
-            top: -4px;">&rho;</span></div>
+          <i class="fa fa-table"></i></div>
         <div id="rembiasButton" class="menu-bar-item menu-bar-button action-button" title="Calculate Removal Bias">
-          <i class="fa fa-minus-square"></i></div>
+          <i class="fa fa-arrows-v"></i></div>
         <div id="aoiZoomButton" class="menu-bar-item menu-bar-button" title="Zoom to Area of Interest">
           <i class="fa fa-binoculars"></i></div>
         <div id="fullExtentButton" class="menu-bar-item menu-bar-button" title="Zoom to Continental US">
@@ -87,24 +86,23 @@
       <p>Below is an explanation of each button in the menu bar at the top of the screen.</p>
       <p class="header">Menu Bar Buttons</p>
       <table id="menubarHelp">
-        <tr><td><i class="fa fa-crosshairs"></i></td><td><strong>Set Area of Interest</strong>
+        <tr><td><i class="fa fa-crosshairs"></i></td><td><strong>Area of Interest</strong>
           <div>Define the area you want to examine. You can draw your own or select a state, CBSA, or CSA.</div>
         </td></tr>
         <tr><td><i class="fa fa-plus-circle"></i></td><td><strong>Add New Site</strong>
           <div>Allows placement of new sites. Click the button, then click the location of the new site.</div>
         </td></tr>
-        <tr><td><div><img src="images/areaServed.png" /></div></td><td><strong>Calculate Area Served</strong>
-          <div>Calculates the area served by each monitor and adds those polygons to the map.
-            You can click on the polygons to see additional information about each area.</div>
+        <tr><td><i class="fa fa-minus-circle"></i></td><td><strong>Remove a Site</strong>
+          <div>Removes existing sites. Click the button, then click on the site you would like to remove.</div>
         </td></tr>
-        <tr><td><i class="fa" style="font-weight: bold; position: relative;">&rho;</i></td>
-          <td><strong>View Correlation Matrix</strong>
-          <div>Generates a graphic showing correlations and concentration differences between each pair of monitors
-            in your area of interest.</div>
+        <tr><td><div><img src="images/areaServed.png" /></div></td><td><strong>Area Served</strong>
+          <div>Calculates the area served by each monitor and adds those polygons to the map.</div>
         </td></tr>
-        <tr><td><i class="fa fa-minus-square"></i></td><td><strong>Calculate Removal Bias</strong>
-          <div>Estimates the concentration bias that would occur at each monitor if it were removed from the network,
-            based concentrations measured at surrounding monitors.</div>
+        <tr><td><i class="fa fa-table"></i></td><td><strong>Correlation Matrix</strong>
+          <div>Generates a matrix of correlations between each pair of monitors in your area of interest.</div>
+        </td></tr>
+        <tr><td><i class="fa fa-arrows-v"></i></td><td><strong>Removal Bias</strong>
+          <div>Estimates the concentration bias at each monitor if it were removed from the network.</div>
         </td></tr>     
         <tr><td><i class="fa fa-binoculars"></i></td><td><strong>Zoom to Area of Interest</strong>
           <div>Zoom in to view your area of interest.</div>

@@ -25,19 +25,19 @@
 #tour .header {
   font-family: 'Roboto Condensed', sans-serif;
   position: absolute;
-  left: 15px;
-  top: 15px;
-  width: 370px;
+  left: 10px;
+  top: 10px;
+  width: 380px;
+  height: 25px;
 }
 
 #tour .content {
   position: absolute;
-  width: 365px;
+  width: 380px;
   height: 210px;
-  left: 15px;
-  top: 45px;
-  overflow-y: scroll;
-  text-align: justify;
+  left: 10px;
+  top: 40px;
+  text-align: left;
   padding-right: 5px;
 }
 

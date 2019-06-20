@@ -5,7 +5,7 @@ Based on the NetAssess app from LADCO (https://github.com/LADCO/NetAssessApp)
 
 Author: Ben Wells, Office of Air Quality Planning and Standards, U.S. Environmental Protection Agency
 
-Latest Update: September 5, 2018
+Latest Update: June 19, 2019
 
 # Instructions for users
 0. You must have R installed on your local machine (if you don't have R, you can download it from cran.r-project.org)

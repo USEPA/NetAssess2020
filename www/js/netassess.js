@@ -112,8 +112,6 @@ netAssess.layerGroups.newSites = L.siteGroup({
   }
 })
 
-netAssess.removelayer = false;
-
 netAssess.floaters = {
   aoi: $.floater("#aoiFloater", {title: "Area of Interest"}),
   newSite: $.floater("#newSiteFloater", {title: "New Site", close: false, minimize: false}),
@@ -130,10 +128,6 @@ $("#downloadDataButton").on("click", netAssess.floaters.download.open)
 $("#newSiteButton").on("click", function(e) {
   netAssess.layerGroups.newSiteSelection.clearLayers();
   netAssess.draw.newSite.enable();
-})
-$("#removeSiteButton").on("click", function(e) {
-  netAssess.layerGroups.newSiteSelection.clearLayers();
-  netAssess.removelayer = true;
 })
 
 netAssess.map = L.map("map", {
@@ -269,18 +263,8 @@ $.ajax({
 });
 
 netAssess.layerGroups.areaServed.addTo(netAssess.map);
-netAssess.layerGroups.sites.addTo(netAssess.map).bringToFront().on("click", function(evt) {
-  if (netAssess.removelayer) {
-    netAssess.map.removeLayer(evt.layer);
-    netAssess.removeLayer = false;
-  }
-});
-netAssess.layerGroups.newSites.addTo(netAssess.map).bringToFront().on("click", function(evt) {
-  if (netAssess.removelayer) {
-    netAssess.map.removeLayer(evt.layer);
-    netAssess.removeLayer = false;
-  }
-})
+netAssess.layerGroups.sites.addTo(netAssess.map).bringToFront();
+netAssess.layerGroups.newSites.addTo(netAssess.map).bringToFront();
 netAssess.layerGroups.newSiteSelection.addTo(netAssess.map);
 $("#pollutantSelect").select2({width: "300px", height: "24px;"});
 $("#areaSelectSelect").select2({width: "80%"});

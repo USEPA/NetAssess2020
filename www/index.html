@@ -30,11 +30,11 @@
   <body>
     <!-- Top menubar that contains title, and most interaction controls-->
     <div id="menubar"><table id="appTitle">
-      <tr><td class="title">NetAssess2020 <span class="version">v1.0</span></td></tr>
+      <tr><td class="title">NetAssess2020 <span class="version">v1.1</span></td></tr>
         <tr><td class="subtitle">Ambient Air Monitoring Network Assessment Tools</td></tr>
       </table>
       <div id="menuControls">
-        <div class="menu-bar-item"><select id="pollutantSelect">
+        <div id="pollSelect" class="menu-bar-item"><select id="pollutantSelect">
           <option selected value="none"> -- Select a Pollutant -- </option>
           <option value="co">CO - Carbon Monoxide (42101)</option>
           <option value="lead">Pb - Lead (12128, 14129, 85129)</option>
@@ -48,14 +48,13 @@
           <i class="fa fa-crosshairs"></i></div>
         <div id="newSiteButton" class="menu-bar-item menu-bar-button" title="Add New Site">
           <i class="fa fa-plus-circle"></i></div>
-        <div id="removeSiteButton" class="menu-bar-item menu-bar-button" title="Remove Site">
-          <i class="fa fa-minus-circle"></i></div>
         <div id="areaServedButton" class="menu-bar-item menu-bar-button action-button" title="Calculate Area Served">
           <img src="images/areaServed.png" /></div>
         <div id="cormatButton" class="menu-bar-item menu-bar-button action-button" title="View Correlation Matrix">
-          <i class="fa fa-table"></i></div>
+          <span class="fa" style="font-family: serif; font-weight: bold; font-size: 24px;position: relative;
+            top: -4px;">&rho;</span></div>
         <div id="rembiasButton" class="menu-bar-item menu-bar-button action-button" title="Calculate Removal Bias">
-          <i class="fa fa-arrows-v"></i></div>
+          <i class="fa fa-minus-square"></i></div>
         <div id="aoiZoomButton" class="menu-bar-item menu-bar-button" title="Zoom to Area of Interest">
           <i class="fa fa-binoculars"></i></div>
         <div id="fullExtentButton" class="menu-bar-item menu-bar-button" title="Zoom to Continental US">
@@ -69,7 +68,7 @@
     
     <!-- SIDEBARS -->
     <div id="settings-sb" class="sidebar">
-	<h1><i class="fa fa-cogs fa-fw"></i> Settings</h1>
+	<h1><i class="fa fa-cogs fa-fw"></i>Settings</h1>
       <p>These settings allow you to customize how the NetAssess2020 App works.</p>
       <table class="options-table">
         <tr><td><label for="areaServedClipping">Clip Area Served Polygons on: </label></td>
@@ -82,27 +81,28 @@
     </div>
     
     <div id="help-sb" class="sidebar">
-      <h1><i class="fa fa-question fa-fw"></i> Help</h1>
+      <h1><i class="fa fa-question fa-fw"></i>Help</h1>
       <p>Below is an explanation of each button in the menu bar at the top of the screen.</p>
       <p class="header">Menu Bar Buttons</p>
       <table id="menubarHelp">
-        <tr><td><i class="fa fa-crosshairs"></i></td><td><strong>Area of Interest</strong>
+        <tr><td><i class="fa fa-crosshairs"></i></td><td><strong>Set Area of Interest</strong>
           <div>Define the area you want to examine. You can draw your own or select a state, CBSA, or CSA.</div>
         </td></tr>
         <tr><td><i class="fa fa-plus-circle"></i></td><td><strong>Add New Site</strong>
           <div>Allows placement of new sites. Click the button, then click the location of the new site.</div>
         </td></tr>
-        <tr><td><i class="fa fa-minus-circle"></i></td><td><strong>Remove a Site</strong>
-          <div>Removes existing sites. Click the button, then click on the site you would like to remove.</div>
+        <tr><td><div><img src="images/areaServed.png" /></div></td><td><strong>Calculate Area Served</strong>
+          <div>Calculates the area served by each monitor and adds those polygons to the map.
+            You can click on the polygons to see additional information about each area.</div>
         </td></tr>
-        <tr><td><div><img src="images/areaServed.png" /></div></td><td><strong>Area Served</strong>
-          <div>Calculates the area served by each monitor and adds those polygons to the map.</div>
+        <tr><td><i class="fa" style="font-weight: bold; position: relative;">&rho;</i></td>
+          <td><strong>View Correlation Matrix</strong>
+          <div>Generates a graphic showing correlations and concentration differences between each pair of monitors
+            in your area of interest.</div>
         </td></tr>
-        <tr><td><i class="fa fa-table"></i></td><td><strong>Correlation Matrix</strong>
-          <div>Generates a matrix of correlations between each pair of monitors in your area of interest.</div>
-        </td></tr>
-        <tr><td><i class="fa fa-arrows-v"></i></td><td><strong>Removal Bias</strong>
-          <div>Estimates the concentration bias at each monitor if it were removed from the network.</div>
+        <tr><td><i class="fa fa-minus-square"></i></td><td><strong>Calculate Removal Bias</strong>
+          <div>Estimates the concentration bias that would occur at each monitor if it were removed from the network,
+            based concentrations measured at surrounding monitors.</div>
         </td></tr>     
         <tr><td><i class="fa fa-binoculars"></i></td><td><strong>Zoom to Area of Interest</strong>
           <div>Zoom in to view your area of interest.</div>
@@ -122,11 +122,12 @@
     </div>
     
     <div id="about-sb" class="sidebar">
-      <h1><i class="fa fa-info fa-fw"></i> About</h1>
+      <h1><i class="fa fa-info fa-fw"></i>About</h1>
       <p>The NetAssess2020 app was developed by EPA's Office of Air Quality Planning and Standards.
          <a href="https://www3.epa.gov/airquality/" target="_blank">(OAQPS)</a>. It is an update of the
-         <a href="http://www.ladco.org/" target="_blank">LADCO</a> NetAssess app developed for the 2015 5-year
-         <a href="https://www3.epa.gov/ttnamti1/network-assessment.html">Monitoring Network Assessments</a>.</p>
+         <a href="https://ladco.shinyapps.io/NetAssessApp/" target="_blank">NetAssess</a> app developed by
+         <a href="https://www.ladco.org/" target="_blank">LADCO</a> for the 2015 5-year Ambient Air Monitoring
+         <a href="https://www3.epa.gov/ttnamti1/network-assessment.html">Network Assessments</a>.</p>
       <p class="header">Credits</p>
       <ul style="list-style-type: none; padding: 0;">
         <li><strong>Ben Wells</strong> - 2020 Network Assessment Tools</li>
@@ -139,8 +140,8 @@
       <p class="header">Software</p>
       <p>The NetAssess2020 app was created using the <a href="http://shiny.rstudio.com/" target="_blank">R shiny</a>
         software package, with custom HTML, CSS, and javascript. The javascript library <a href="http://leafletjs.com/"
-        target="_blank">leaflet</a> and many of its plugins were used to make the maps. The original 2015 NetAssess App
-        source code is available on <a href="https://github.com/LADCO/NetAssessApp" target="_blank">GitHub</a>.
+        target="_blank">leaflet</a> and many of its plugins were used to make the maps. The source code and data for the 
+        NetAssess2020 App is available on <a href="https://github.com/USEPA/NetAssess2020/" target="_blank">GitHub</a>.
     </div>    
     
     <!-- TOUR -->

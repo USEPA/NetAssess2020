@@ -9,6 +9,7 @@ require(rgeos,quietly=TRUE)
 require(RSQLite,quietly=TRUE)
 require(sp,quietly=TRUE)
 
+if (!dir.exists("www/images/temp")) { dir.create("www/images/temp") }
 unlink(paste("www/images/temp",list.files("www/images/temp/"),sep="/"))
 db <- dbConnect(SQLite(),dbname="netassess.sqlite")
 usborder <- SpatialPolygons(list(Polygons(lapply(eval(parse(text=dbGetQuery(db,"SELECT GEOMETRY FROM usborder"))),

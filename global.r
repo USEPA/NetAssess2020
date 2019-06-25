@@ -12,10 +12,16 @@ require(sp,quietly=TRUE)
 if (!dir.exists("www/images/temp")) { dir.create("www/images/temp") }
 unlink(paste("www/images/temp",list.files("www/images/temp/"),sep="/"))
 db <- dbConnect(SQLite(),dbname="netassess.sqlite")
-usborder <- SpatialPolygons(list(Polygons(lapply(eval(parse(text=dbGetQuery(db,"SELECT GEOMETRY FROM usborder"))),
-        function(p) Polygon(p[,c("lng","lat")])),ID="US"))) 
-tracts <- SpatialPointsDataFrame(coords=dbGetQuery(db,"SELECT Longitude, Latitude FROM tracts"),
+usborder <- SpatialPolygons(list(Polygons(lapply(eval(parse(text=dbGetQuery(db,"SELECT geometry FROM usborder"))),
+        function(p) Polygon(p[,c("lng","lat")])),ID="US")))
+tracts <- SpatialPointsDataFrame(coords=dbGetQuery(db,"SELECT longitude, latitude FROM tracts"),
   data=dbGetQuery(db,"SELECT * FROM tracts"))
+temp <- dbGetQuery(db,"SELECT * FROM counties")
+poly <- sapply(temp$geometry,function(x) eval(parse(text=x)))
+counties <- SpatialPolygonsDataFrame(Sr=SpatialPolygons(Srl=mapply(function(poly,id) {
+      Polygons(srl=lapply(poly,function(x) Polygon(x[,c("lng","lat")])),ID=id) },
+      poly=poly,id=temp$code)),data=as.data.frame(temp[,1:4]),match.ID="code")
+rm(temp,poly)
 
 createSites <- function() {
   jsonArray <- function(x,quote=FALSE) {
@@ -44,7 +50,7 @@ createSites <- function() {
     key <- jsonArray(key)
     site_id <- jsonArray(site_id,TRUE)
     p <- c(key=key,site_id=site_id,as.list(s[r,c("site_name","address","epa_region",
-      "state_name","county_name","cbsa_name","csa_title","monitor_count")]))
+      "state_name","county_name","cbsa_name","csa_title","monitor_count","pollutants")]))
     p$site_name <- gsub('"',"&quot;",gsub("'","&#039;",p$site_name,fixed=TRUE),fixed=TRUE)
     p$address <- gsub('"',"&quot;",gsub("'","&#039;",p$address,fixed=TRUE),fixed=TRUE)
     p <- jsonObject(p)

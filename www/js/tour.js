@@ -17,9 +17,15 @@ netAssess.tour.makeSlide({ title: "Welcome to NetAssess2020!",
 })
 
 netAssess.tour.makeSlide({title: "Menu Bar",
-  text: "The menu bar above is how you will access most of the functionality of the NetAssess2020 app. Each icon above is a button that gives you access to a tool or function in the app.",
+  text: "The menu bar above is how you will access most of the functionality of the NetAssess2020 app. <br><br>Each icon above is a button that gives you access to a tool or function in the app.",
   target: "#menuControls",
   position: "below"
+})
+
+netAssess.tour.makeSlide({title: "Zoom Buttons",
+  text: "These buttons allow you to zoom in and zoom out on the map. You can also zoom in and zoom out using the scroll wheel on your mouse.",
+  target: ".leaflet-control-zoom",
+  position: "right"
 })
 
 netAssess.tour.makeSlide({title: "Layers",
@@ -29,19 +35,19 @@ netAssess.tour.makeSlide({title: "Layers",
 })
 
 netAssess.tour.makeSlide({title: "Sidebars",
-  text: "These buttons open side panels that offer additional settings and information. The top button opens the 'Settings' sidebar, the middle button opens the 'Help' sidebar, and the bottom button opens the 'About' sidebar.",
+  text: "These buttons open side panels that offer additional settings and information.<br><br>The top button opens the 'Settings' sidebar, the middle button opens the 'Help' sidebar, and the bottom button opens the 'About' sidebar.",
   target: ".leaflet-top.leaflet-right",
   position: "left"
 })
 
 netAssess.tour.makeSlide({title: "Legend",
-  text: "The legend panel below explains what the different symbols displayed on the map mean. The legend will change depending on which tools your are using, and which layers you have displayed.",
+  text: "The legend panel below explains what the different symbols displayed on the map mean. <br><br>The legend will change depending on which tools your are using, and which layers you have displayed.",
   target: "#legendFloater",
   position: "above"
 })
 
 netAssess.tour.makeSlide({title: "Using NetAssess2020",
-  text: "Now we will cover how to get started using the tools. The following steps do not require you to make any selections. The app will make appropriate selections to illustrate the functionality."
+  text: "Now we will cover how to get started using the tools.<br><br>The following steps do not require you to make any selections. The app will make appropriate selections to illustrate the functionality."
 })
 
 netAssess.tour.makeSlide({title: "Pollutant Selection",
@@ -55,19 +61,19 @@ netAssess.tour.makeSlide({title: "Pollutant Selection",
 })
                              
 netAssess.tour.makeSlide({title: "Monitoring Sites",
-  text: "When a pollutant is selected, all sites that monitor for that pollutant will appear as red circles on the map. You can click on any site to open a window with basic information about that site and a graphic displaying the air quality trend for that site.",
+  text: "When a pollutant is selected, all sites that monitor for that pollutant will appear as red circles on the map.<br><br>You can click on any site to open a window with basic information about that site and a graphic displaying the air quality trend for your selected pollutant at that site.",
   position: "right"
 })
 
 netAssess.tour.makeSlide({title: "Area of Interest",
-  text: "The next step is to select an Area of Interest. Click on the 'Area of Interest' button above to open the Area of Interest selection window, which will allow you to choose an area of the U.S. to focus your analysis.", 
+  text: "The next step is to select an Area of Interest.<br><br>Clicking on the 'Area of Interest' button above opens the Area of Interest selection window, which will allow you to choose an area of the U.S. to focus your analysis.", 
   target: "#aoiButton", 
   position: "below",
   runafter: netAssess.floaters.aoi.open
 })
 
 netAssess.tour.makeSlide({title: "Area of Interest",
-  text: "You can select an Area of Interest in several ways. You can draw your own area using the 'Draw an Area of Interest' controls, or you can select a pre-defined area such as a State, CBSA, or CSA. We have selected the State of Arkansas for this example.", 
+  text: "You can select an Area of Interest in several ways.<br><br>You can draw your own area using the 'Draw an Area of Interest' controls.<br><br>Or, you can select a pre-defined area such as a State, CBSA, or CSA. We have selected the State of Arkansas for this example.", 
   target: "#aoiFloater", 
   position: "right",
   runbefore: function() {
@@ -80,26 +86,33 @@ netAssess.tour.makeSlide({title: "Area of Interest",
   runafter: netAssess.floaters.aoi.close
 })
 
+netAssess.tour.makeSlide({title: "Zoom to Area of Interest",
+  text: "You can use this button to zoom in to your Area of Interest, once you have defined one.",
+  target: "#aoiZoomButton",
+  position: "below",
+  runafter: function() { $("#aoiZoomButton").trigger("click"); }
+})
+
 netAssess.tour.makeSlide({title: "Site Selection",
-  text: "Notice that the sites within the Area of Interest have gotten brighter and larger to indicate they are selected. You can right-click on individual sites to open a menu that allows you to select, deselect, or hide those sites.",
+  text: "Notice that the sites within the Area of Interest have gotten brighter and larger to indicate that they are selected.<br><br>You can right-click on individual sites to open a menu that allows you to select, deselect, or hide those sites.",
   position: "right"
 })
 
 netAssess.tour.makeSlide({title: "Add New Sites",
-  text: "At this point, you may want to add new sites to your monitoring network. Click on the 'Add New Site' button above, then click the location on the map where you want the new monitor to be placed.<br><br>New sites are displayed as green circles on the map and are treated just like existing sites for the purposes of Area Served calculations.",
+  text: "At this point, you may want to add new sites to your monitoring network.<br><br>To place a new site on the map, click on the 'Add New Site' button above, then click the location on the map where you want the new monitor to be placed.<br><br>New sites are displayed as green circles on the map and are treated just like existing sites for the purposes of Area Served calculations.",
   target: "#newSiteButton",
   position: "below"
 })
 
 netAssess.tour.makeSlide({title: "Area Served",
-  text: "The Area Served tool estimates the area served by the monitoring sites in your Area of Interest. Click on the 'Area Served' button above to calculate the Area Served by each selected site in your Area of Interest.",
+  text: "The Area Served tool estimates the area served by each monitoring site in your Area of Interest.<br><br>Clicking the 'Area Served' button above calculates the Area Served by each selected site in your Area of Interest.",
   target: "#areaServedButton",
   position: "below",
   runafter: function() { $("#areaServedButton").trigger("click"); }
 })
 
 netAssess.tour.makeSlide({title: "Area Served",
-  text: "In a moment, grey polygons will appear around each selected site.<br><br>Each polygon represents the area that is closer to the monitor within it than any other monitor in the network. You can click on any polygon to open a new window with detailed information about that area.",
+  text: "In a moment, grey polygons will appear around each selected site.<br><br>Each polygon represents the area that is closer to the monitor within it than any other monitor in the network. <br><br>You can click on any polygon to open a new window with detailed information about that area.",
   position: "right",
   runafter: function() {
     var key = Object.keys(netAssess.layerGroups.areaServed._layers)[1];
@@ -108,86 +121,86 @@ netAssess.tour.makeSlide({title: "Area Served",
 })
 
 netAssess.tour.makeSlide({title: "Area Served",
-  text: "When you click on a polygon, a new window will appear to the right. This window gives you geographic and demographic information about the area you clicked.<br><br>If you have selected Ozone or PM<sub>2.5</sub>, the estimated probability of a NAAQS violation within the selected area will also be displayed.", 
+  text: "When you click on a polygon, a new window will appear to the right. This window gives you geographic and demographic information about the area you clicked.<br><br>If you have selected Ozone or PM<sub>2.5</sub>, the estimated probability of a NAAQS exceedance within the selected area will also be displayed at the bottom.", 
   target: "#areaServedFloater",
   position: "left",
   runafter: netAssess.floaters.areaServed.close
 })
 
 netAssess.tour.makeSlide({title: "Correlation Matrix",
-  text: "Click on the 'Correlation Matrix' button to open a new window displaying a correlation matrix graphic. This graphic gives you information about how concentrations at monitors within your Area of Interest compare to one another.<br><br>", 
+  text: "Clicking on the 'Correlation Matrix' button will open a new window displaying a correlation matrix graphic. This may take a moment, especially if you have a large number of sites selected. <br><br>This graphic gives you information about how concentrations at monitors within your Area of Interest compare to one another.", 
   target: "#cormatButton", 
   position: "below",
-  runafter: function() { $("#cormatButton").trigger("click"); }
+  runbefore: function() { $("#cormatButton").trigger("click"); }
 })
 
 netAssess.tour.makeSlide({title: "Correlation Matrix",
-  text: "Each monitor comparison is represented by a square. The blue squares in the bottom-left show the correlation between each pair of monitors, with text indicating the number of days used in the calculation.<br><br>The red squares in the top-right show the mean absolute difference, with text indicating the distance in kilometers between each pair of monitors. The numbers along the diagonal indicate the most recent design value for each monitor.",
+  text: "Each monitor comparison is represented by a square in the chart.<br><br>The blue squares in the bottom-left corner show the correlation between each pair of monitors, with text indicating the number of days used in the calculation.",
+  position: "right"
+})
+
+netAssess.tour.makeSlide({title: "Correlation Matrix",
+  text: "The red squares in the top-right corner show the mean absolute difference in concentrations between each pair of monitors, with text indicating the distance in kilometers between each pair of monitors.<br><br>The numbers along the diagonal indicate the most recent design value for each monitor.",
   position: "right",
   runafter: netAssess.floaters.cormat.close
 })
 
 netAssess.tour.makeSlide({title: "Removal Bias",
-  text: "When you click on the 'Removal Bias' button, all selected sites with data available will become larger and change color. The color represents the mean Removal Bias calculated for that site. <br><br>Clicking on a site will open a window that gives more information about the Removal Bias at that location.",
+  text: "When you click on the 'Removal Bias' button, all selected sites with data available will become larger and change color.<br><br>The color represents the average Removal Bias calculated for that site, as indicated by the Legend.<br><br>Clicking on a site will open a window that gives more information about the Removal Bias at that location.",
   target: "#rembiasButton",
   position: "below",
   runbefore: function() { $("#rembiasButton").trigger("click"); }
 })
 
 netAssess.tour.makeSlide({title: "Removal Bias",
-  text: "The Removal Bias tool finds the nearest neighbors to each selected monitor and then uses the concentrations at those monitors to interpolate the concentration at the monitoring site. It then compares the interpolated estimates to the actual concentrations measured at the selected site.<br><br>If the bias is small, that may indicate that the monitor is redundant and could be removed.",
-  position: "right",
-  runafter: function() {
-    netAssess.map.removeLayer(netAssess.layerGroups.aoi);
-    netAssess.map.removeLayer(netAssess.layerGroups.areaServed);
-    netAssess.map.removeLayer(netAssess.layerGroups.rembias);
-    $("#pollutantSelect").select2("val","none");
-    $("#pollutantSelect").trigger("change");
-  }
-})
-
-netAssess.tour.makeSlide({title: "Exceedance Probabilities",
-  text: "Exceedance Probabilities for each Census Tract in the Continental U.S. have been calculated for Ozone and PM<sub>2.5</sub> using Downscaler fused air quality surfaces for 2014-2016.<br><br>You can view this information on the map by turning on the 'Ozone Probability' or 'PM<sub>2.5</sub> Probability' layers in the Layers Control. The PM<sub>2.5</sub> probability layer is currently displayed.",
-  target: ".leaflet-control-layers-toggle",
-  position: "right",
-  runbefore: function() { netAssess.map.addLayer(netAssess.overlays.pm25) },
-  runafter: function() { netAssess.map.removeLayer(netAssess.overlays.pm25) }
-})
-
-netAssess.tour.makeSlide({title: "Zoom to Area of Interest",
-  text: "You can use this button to zoom in to your Area of Interest, once you have defined one.",
-  target: "#aoiZoomButton",
-  position: "below"
-})
-
-netAssess.tour.makeSlide({title: "Zoom to Continental U.S.",
-  text: "You can use this button to zoom out and view the entire continental United States.",
-  target: "#fullExtentButton",
-  position: "below"
+  text: "The Removal Bias tool finds the nearest neighbors to each selected site and then uses the data from the neighboring sites to estimate concentrations at the site. It then compares the estimates to the actual concentrations measured at the selected site to determine the Removal Bias.<br><br>If the bias is small, that may indicate that the monitor is redundant and could be removed.",
+  position: "right"
 })
 
 netAssess.tour.makeSlide({title: "Download Data",
-  text: "All data calculated by the NetAssess2020 app is available for download. Clicking on the 'Download Data' button above will open a new window where you can choose the type of data you want to download.",
+  text: "All data calculated by the NetAssess2020 app is available for download.<br><br>Clicking on the 'Download Data' button above will open a new window where you can choose the type of data you want to download.",
   target: "#downloadDataButton",
   position: "below",
   runafter: netAssess.floaters.download.open
 })
 
 netAssess.tour.makeSlide({title: "Download Data",
-  text: "Click the download icon next to a data type to download the data in a CSV file. If the selection is greyed out, that means that you haven't made sufficient selections needed to generate that data type yet.",
+  text: "Click the download icon next to a data type to download the data in a CSV file.<br><br>If a selection is greyed out, that means that you haven't made sufficient selections needed to generate that data type yet.",
   target: "#downloadFloater",
   position: "below",
   runafter: netAssess.floaters.download.close
 })
 
+netAssess.tour.makeSlide({title: "Zoom to Continental U.S.",
+  text: "You can use this button to zoom out and view the entire continental United States.",
+  target: "#fullExtentButton",
+  position: "below",
+  runafter: function() {
+    netAssess.map.removeLayer(netAssess.layerGroups.aoi);
+    netAssess.map.removeLayer(netAssess.layerGroups.areaServed);
+    netAssess.map.removeLayer(netAssess.layerGroups.rembias);
+    $("#pollutantSelect").select2("val","none");
+    $("#pollutantSelect").trigger("change");
+    $("#fullExtentButton").trigger("click");
+  }
+})
+
+netAssess.tour.makeSlide({title: "Exceedance Probabilities",
+  text: "Exceedance Probabilities for each Census Tract in the Continental U.S. have been calculated for Ozone and PM<sub>2.5</sub>. These values represent the probability of a NAAQS exceedance based on Downscaler fused air quality surfaces for 2014-2016.<br><br>You can view this information on the map by turning on the 'Ozone Probability' or 'PM<sub>2.5</sub> Probability' layers in the Layers Control. The PM<sub>2.5</sub> probability layer is currently displayed.",
+  target: ".leaflet-control-layers-toggle",
+  position: "right",
+  runbefore: function() { netAssess.map.addLayer(netAssess.overlays.pm25) },
+  runafter: function() { netAssess.map.removeLayer(netAssess.overlays.pm25) }
+})
+
 netAssess.tour.makeSlide({title: "Reset App",
-  text: "Clicking on this button will reset the NetAssess2020 app to its initial state. All layers will be erased, all selections will be removed, and all settings will be restored to their default.",
+  text: "Clicking on this button will reset the NetAssess2020 app to its initial state.<br><br>All layers will be erased, all selections will be removed, and all settings will be restored to their defaults.",
   target: "#resetAppButton",
   position: "below"
 })
 
 netAssess.tour.makeSlide({title: "Conclusion",
-  text: "This concludes the tour. You can check the 'Don't show again' box below to prevent this tour from opening automatically the next time you visit the app. You can always reopen it using the 'Help' sidebar to the right.",
+  text: "This concludes the tour.<br><br>You can check the 'Don't show again' box below to prevent this tour from opening automatically the next time you visit the app. You can always reopen it using the 'Help' sidebar to the right.",
   runbefore: function() { netAssess.resetApp() }
 })
 

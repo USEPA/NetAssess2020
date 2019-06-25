@@ -2,7 +2,7 @@ $(document).ready(function() {
   var ua = window.navigator.userAgent;
   var msie = ua.indexOf("MSIE ");
   if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) { 
-    netAssess.showAlert("Internet Explorer Detected", "Unfortunately, NetAssess does not work with Internet Explorer. For best performance use a modern version of <a href = 'www.google.com/chrome/'>Chrome</a> or <a href = 'https://www.mozilla.org/en-US/firefox/new/'>Firefox</a>.")
+    netAssess.showAlert("Internet Explorer Detected", "Unfortunately, NetAssess2020 does not work with Internet Explorer. For best performance, please use a modern version of <a href = 'https://www.google.com/chrome/'>Chrome</a> or <a href = 'https://www.mozilla.org/en-US/firefox/new/'>Firefox</a>.")
   } else {
     setTimeout(netAssess.iCH, 1*60*1000)
   }
@@ -78,6 +78,8 @@ netAssess.layerGroups.sites = L.siteGroup({
     po = po + "<td>" + site.properties.csa_title + "</td></tr>"
     po = po + "<tr><td>Monitor Count</td>"
     po = po + "<td>" + site.properties.monitor_count + "</td></tr>"
+    po = po + "<tr><td>Pollutants</td>"
+    po = po + "<td>" + site.properties.pollutants + "</td></tr>"
     po = po + "<tr><td colspan = 2 style = 'text-align: center; padding-top: 10px; border-right: none;'>Trends (click to enlarge)</td></tr>"
     po = po + "<tr><td colspan = 2 style = 'text-align: center; border-right: none;'><div class = 'popup-trend'><img src = 'images/notrend.png' /></div></center></td></tr>"
     po = po + "</table>"
@@ -90,17 +92,15 @@ netAssess.layerGroups.newSites = L.siteGroup({
   contextmenu: true,
   aoiLayer: netAssess.layerGroups.aoi,
   visibilityTest: function(site) {
-    return (site.properties.Pollutants.indexOf($("#pollutantSelect").val()) != -1) 
+    return (site.properties.poll.indexOf($("#pollutantSelect").val()) != -1) 
   },
   onEachSite: function(site) {
     po = "<span class = 'popup-text'><h4 class = 'header'>New Site Information</h4>"
     po = po + "<center><table class = 'popup-table'>"
-    po = po + "<tr><td>Site ID</td><td>" + site.properties.Name + "</td></tr>"
-    po = po + "<tr><td>County</td><td>" + site.properties.County + "</td></tr>"
-    po = po + "<tr><td>State</td><td>" + site.properties.State + "</td></tr>"
+    po = po + "<tr><td>Site Name</td><td>" + site.properties.name + "</td></tr>"
     po = po + "<tr><td>Pollutants</td><td>"
-    for(var i = 0; i < site.properties.Pollutants.length; i++) {
-      po = po + site.properties.Pollutants[i] + "<br />"
+    for(var i = 0; i < site.properties.poll.length; i++) {
+      po = po + site.properties.poll[i] + " "
     }
     po = po + "</td></tr>"
     po = po + "</table></span>"
@@ -136,8 +136,8 @@ netAssess.map = L.map("map", {
   contextmenuItems: [
     {text: "Full Extent", iconCls: "fa fa-search-minus", callback: netAssess.zoomOut}  
   ],
-  zoomControl: false,
-  maxZoom: 12,
+  zoomControl: true,
+  maxZoom: 18,
   minZoom: 3
 })
 
@@ -199,28 +199,21 @@ netAssess.getNewSite = function(newSite) {
   var lng = newSite._latlng.lng;
   $("#nsLat").val(Math.round(lat * 1000000) / 1000000);
   $("#nsLng").val(Math.round(lng * 1000000) / 1000000);
-  var url = "https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=" + lng + "&y=" + lat + "&benchmark=4&vintage=4&format=jsonp&callback=?";
-  $.getJSON(url, function(wd) {
-    $("#nsState").val(wd.result.geographies.States[0].NAME);
-    $("#nsCounty").val(wd.result.geographies.Counties[0].NAME);
-    $("#nsCensus").val(wd.result.geographies["Census Tracts"][0].GEOID);
-    netAssess.floaters.newSite.open();
-  })  
+  netAssess.floaters.newSite.open();
 }
 
 netAssess.setNewSite = function(e) {
   var latlng = L.latLng({lat: $("#nsLat").val(), lng: $("#nsLng").val()});
   var props = {
-    County: $("#nsCounty").val(), State: $("#nsState").val(), 
-    Name: $("#nsName").val(), Pollutants: $("#nsPollutants").val(),
-    Tract: $("#nsCensus").val(), key: netAssess.data.newSiteCounter
+    name: $("#nsName").val(), poll: $("#nsPollutants").val(),
+    key: netAssess.data.newSiteCounter
   }
   var opts = {contextmenu: true}          
   netAssess.data.newSiteCounter++
   netAssess.layerGroups.newSites.addSite(latlng, props, opts)
   netAssess.layerGroups.newSiteSelection.clearLayers();
   netAssess.floaters.newSite.close();
-  netAssess.data.newSites[props.key] = {key: props.key, lat: latlng.lat, lng: latlng.lng, properties: props}
+  netAssess.data.newSites[props.key] = {key: props.key, name: props.name, lat: latlng.lat, lng: latlng.lng, poll: props.poll, properties: props}
   document.getElementById("newSites").updateAnchor(netAssess.data.newSites)
 }
 
@@ -274,22 +267,39 @@ $("#pollutantSelect").on("change", function(e) {
   netAssess.layerGroups.newSites.testVisibility();
   netAssess.layerGroups.rembias.clearLayers();
   netAssess.layerGroups.areaServed.clearLayers();
+  $("#areaServedDownload").parents("tr").addClass("disabled");
+  $("#correlationDownload").parents("tr").addClass("disabled");
+  $("#removalBiasDownload").parents("tr").addClass("disabled");
 });
+
+netAssess.layerGroups.aoi.on("layerremove", function() {
+  $("#areaServedDownload").parents("tr").addClass("disabled");
+  $("#correlationDownload").parents("tr").addClass("disabled");
+  $("#removalBiasDownload").parents("tr").addClass("disabled");
+  $("#trendDataDownload").parents("tr").addClass("disabled");
+})
 
 $("#areaServedDemographics").on("click", function(event) {
   $("#bigChart").attr("src", $(this).find("img").attr("src"))
   netAssess.floaters.popup.open();
 })
 
+netAssess.layerGroups.aoi.on("layeradd", function() {
+  $("#trendDataDownload").parents("tr").removeClass("disabled");
+})
+
 $("#areaServedButton").on("click", function(event) {
+  $("#areaServedDownload").parents("tr").removeClass("disabled");
   netAssess.errorChecking.areaServed(event);
 })
 
 $("#cormatButton").on("click", function(event) {
   netAssess.errorChecking.cormat(event);
+  $("#correlationDownload").parents("tr").removeClass("disabled");
 })
 
 $("#rembiasButton").on("click", function(event) {
+  $("#removalBiasDownload").parents("tr").removeClass("disabled");
   netAssess.errorChecking.rembias(event);
 })
 
@@ -384,26 +394,6 @@ netAssess.layerGroups.newSites.on("visibilityupdate", function(event) {
 })
 netAssess.layerGroups.newSites.on("selectionupdate", function(event) {
   document.getElementById("selectedNewSites").updateAnchor(event.keys);
-})
-
-netAssess.layerGroups.sites.on("selectionupdate visibilityupdate", function(event) {
-  if(netAssess.layerGroups.sites.options.selectedSites.length > 0) {
-    $("#correlationDownload").parents("tr").removeClass("disabled");
-    $("#removalBiasDownload").parents("tr").removeClass("disabled");
-    $("#siteInfoDownload").parents("tr").removeClass("disabled");
-  } else {
-    $("#correlationDownload").parents("tr").addClass("disabled");
-    $("#removalBiasDownload").parents("tr").addClass("disabled");
-    $("#siteInfoDownload").parents("tr").addClass("disabled");
-  }
-})
-
-netAssess.layerGroups.areaServed.on("layeradd", function() {
-  $("#areaServedDownload").parents("tr").removeClass("disabled");
-})
-
-netAssess.layerGroups.areaServed.on("layerremove", function() {
-  $("#areaServedDownload").parents("tr").addClass("disabled");
 })
 
 netAssess.map.on("popupopen", function(e) {

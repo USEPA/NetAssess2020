@@ -4,7 +4,7 @@ shinyServer(function(input,output,session) {
   showLoading <- function() { session$sendCustomMessage("loading","show") }
   hideLoading <- function() { session$sendCustomMessage("loading","hide") }
   
-  ## Logic controlling site selection and visibility
+  ## Existing sites, new sites, and site selection
   pollutantSites <- reactive({
     if (is.null(input$pollutantSelect)) { return() }
     if (input$pollutantSelect == "none") { return() }
@@ -19,17 +19,34 @@ shinyServer(function(input,output,session) {
   newSites <- reactive({
     if (length(input$newSites) == 0) { return() }
     ns <- data.frame(key=unlist(lapply(input$newSites,function(x) x$key)),
-      latitude=unlist(lapply(input$newSites,function(x) x$lat)),
+      site_id="",site_name=unlist(lapply(input$newSites,function(x) x$name)),
+      address="New Site",latitude=unlist(lapply(input$newSites,function(x) x$lat)),
       longitude=unlist(lapply(input$newSites,function(x) x$lng)))
+    coord <- SpatialPoints(ns[,c("longitude","latitude")])
+    cty <- over(coord,counties)
+    st <- dbGetQuery(db,"SELECT * FROM states")
+    st.ind <- match(substr(cty$code,1,2),st$code)
+    ns$epa_region <- st$epa_region[st.ind]
+    ns$state_name <- st$name[st.ind]
+    ns$county_name <- cty$name
+    ns$cbsa_name <- cty$cbsa
+    ns$csa_title <- cty$csa
+    ns$site_id <- paste(cty$code,"NS",sprintf("%02d",c(1:length(input$newSites))),sep="")
+    names <- dbGetQuery(db,"SELECT DISTINCT pollutant, poll_name FROM standards")
+    poll <- lapply(input$newSites,function(x) names$poll_name[match(x$poll,names$pollutant)])
+    ns$monitor_count <- unlist(lapply(poll,length))
+    ns$pollutants <- unlist(lapply(poll,function(x) paste(x,collapse=", ")))
     return(ns)
   })
   
   visibleSites <- reactive({
     ps <- pollutantSites()
     if (is.null(ps)) { return() }
-    vs <- ps[ps$key %in% input$visibleSites,c("key","latitude","longitude")]
+    vs <- ps[ps$key %in% input$visibleSites,]
     ns <- newSites()
-    if(!is.null(ns)) { vs <- rbind(vs,ns[ns$key %in% input$visibleNewSites,]) }
+    if(!is.null(ns)) { 
+      vs <- rbind(vs,ns[ns$key %in% input$visibleNewSites,])
+    }
     return(vs)
   })
   
@@ -48,9 +65,11 @@ shinyServer(function(input,output,session) {
   selectedSites <- reactive({
     ps <- pollutantSites()
     if (is.null(ps)) { return() }
-    ss <- ps[ps$key %in% activeSites(),c("key","latitude","longitude")]
+    ss <- ps[ps$key %in% activeSites(),]
     ns <- newSites()
-    if(!is.null(ns)) { ss <- rbind(ss,ns[ns$key %in% activeNewSites(),]) }
+    if(!is.null(ns)) { 
+      ss <- rbind(ss,ns[ns$key %in% activeNewSites(),])
+    }
     return(ss)
   })
   
@@ -63,7 +82,7 @@ shinyServer(function(input,output,session) {
   ## Area of Interest
   areaOfInterest <- reactive({
     aoi <- input$areaOfInterest[[1]]
-    if(is.null(names(aoi[[1]]))) {
+    if (is.null(names(aoi[[1]]))) {
       polygons <- lapply(aoi,function(p) {
         m <- matrix(as.numeric(do.call(rbind,p)),ncol=2)
         Polygon(coords=rbind(m,m[1,])[,c(2,1)],hole=FALSE)
@@ -78,33 +97,22 @@ shinyServer(function(input,output,session) {
   
   observe({
     if(is.null(input$areaSelect)) { return() }
-    if(input$areaSelect == "State") {
-      states <- unique(dbGetQuery(db,"SELECT CODE, NAME FROM states"))
-      choices <- states$CODE
-      names(choices) <- states$NAME
-    } else if(input$areaSelect == "CBSA") {
-      cbsa <- dbGetQuery(db,"SELECT CODE, NAME FROM cbsas")
-      choices <- cbsa$CODE
-      names(choices) <- cbsa$NAME
-    } else if(input$areaSelect == "CSA") {
-      csa <- dbGetQuery(db,"SELECT CODE, NAME FROM csas")
-      choices <- csa$CODE
-      names(choices) <- csa$NAME
-    } else {
-      choices <- c("")
-    }
+    if(input$areaSelect %in% c("State","CBSA","CSA")) {
+      type <- paste(tolower(isolate(input$areaSelect)),"s",sep="")
+      vals <- dbGetQuery(db,paste("SELECT code, name FROM",type))
+      choices <- vals$code; names(choices) <- vals$name;
+    } else { choices <- c("") }
     updateSelectInput(session,"areaSelectSelect",choices=choices)
   })
   
   observe({
-    if(!is.null(input$areaSelectSelect) && input$areaSelectSelect != "") {
-      type <- toupper(isolate(input$areaSelect))
-      src <- switch(type,STATE="states",CBSA="cbsas",CSA="csas")
-      q <- paste0("SELECT GEOMETRY FROM ",src," WHERE CODE = '",input$areaSelectSelect,"'")
-      coords <- eval(parse(text=dbGetQuery(db,q)[1,1]))
-      session$sendCustomMessage(type="displayPredefinedArea",
-        list(properties=list(name="test",type=type,id=input$areaSelectSelect),coords=coords))
-    }
+    if (is.null(input$areaSelectSelect)) { return() }
+    if (input$areaSelectSelect == "") { return() }
+    type <- paste(tolower(isolate(input$areaSelect)),"s",sep="")
+    q <- paste0("SELECT geometry FROM ",type," WHERE code = '",input$areaSelectSelect,"'")
+    coords <- eval(parse(text=dbGetQuery(db,q)[1,1]))
+    session$sendCustomMessage(type="displayPredefinedArea",
+      list(properties=list(name="test",type=type,id=input$areaSelectSelect),coords=coords))
   })
   
   ## Area Served
@@ -223,12 +231,9 @@ shinyServer(function(input,output,session) {
     poly <- as.numeric(input$clickedAreaServed)
     if (is.null(selectedSites())) { return() }
     if (!(poly %in% selectedSites()$key)) { return() }
-    if (poly %in% activeSites()) {
-      ps <- pollutantSites()
-      id <- ps$site_id[ps$key %in% poly][1]
-      return(paste(substr(id,1,2),substr(id,3,5),substr(id,6,9),sep="-"))
-    }
-    if (poly %in% activeNewSites()) { return("New Site") }
+    ss <- selectedSites()
+    id <- ss$site_id[ss$key %in% poly][1]
+    return(paste(substr(id,1,2),substr(id,3,5),substr(id,6,9),sep="-"))
   })
   
   output$areaServedArea <- renderText({
@@ -249,17 +254,14 @@ shinyServer(function(input,output,session) {
   
   output$areaServedDemographics <- renderPlot({
     if (is.null(input$clickedAreaServed)) { return() }
-    if (is.null(selectedSites())) { return() }
     poly <- as.numeric(input$clickedAreaServed)
+    if (is.null(selectedSites())) { return() }
     if (!(poly %in% selectedSites()$key)) { return() }
     df <- as.data.frame(polygons()@data)
     if (nrow(df) == 0) { return() }
-    if (poly %in% activeSites()) {
-      ps <- pollutantSites()
-      id <- ps$site_id[ps$key %in% poly][1]
-      site.id <- paste("Site",paste(substr(id,1,2),substr(id,3,5),substr(id,6,9),sep="-"))
-    }
-    if (poly %in% activeNewSites()) { site.id <- "New Site" }
+    ss <- selectedSites()
+    id <- ss$site_id[ss$key %in% poly][1]
+    site.id <- paste("Site",paste(substr(id,1,2),substr(id,3,5),substr(id,6,9),sep="-"))
     pop.cols <- c("male","female","white","black","native","asian","islander","other","multiple","hispanic",
       "age_0_4","age_5_9","age_10_14","age_15_19","age_20_24","age_25_29","age_30_34","age_35_39","age_40_44",
       "age_45_49","age_50_54","age_55_59","age_60_64","age_65_69","age_70_74","age_75_79","age_80_84","age_85_up")
@@ -269,7 +271,7 @@ shinyServer(function(input,output,session) {
     yspace <- 10^floor(log(ymax,base=10))/ifelse(substr(ymax,1,1) > 5,1,ifelse(substr(ymax,1,1) > 2,2,5))
     par(mar=c(10,8,2,0),las=2,cex.main=2,cex.axis=2)
     plot(x=NULL,y=NULL,type='n',axes=FALSE,xaxs='i',xlim=c(0,30),xlab="",yaxs='i',ylim=c(0,ymax),ylab="",
-      main=paste("Demographics for Area Served by",site.id))
+      main=paste("Demographics for Area Served by AQS Site ID =",site.id))
     axis(side=1,at=c(1,2,seq(3.5,10.5,1),seq(12,29,1)),labels=pop.cols)
     axis(side=2,at=seq(0,ymax,yspace),labels=prettyNum(sprintf("%8d",seq(0,ymax,yspace)),big.mark=","))
     rect(xleft=0,ybottom=0,xright=30,ytop=ymax,col='gray90')
@@ -322,7 +324,7 @@ shinyServer(function(input,output,session) {
         WHERE pollutant = '",poll,"'
           AND year = ",switch(poll,co=1971,lead=2009,no2=2010,ozone=2015,pm10=2006,pm25=2012,so2=2010),sep=""))
     if (poll %in% c("co","lead")) { std <- std[2,] }
-    curr.year <- as.numeric(substr(Sys.Date(),1,4)) - ifelse(as.numeric(substr(Sys.Date(),6,7)) > 4,1,2)
+    curr.year <- max(dbGetQuery(db,"SELECT DISTINCT year FROM annual"))
     max.na <- function(x) { return(ifelse(all(is.na(x)),NA,max(x,na.rm=TRUE))) }
     ymax <- pmax(1.2*max.na(annual.data$annual_value),1.2*max(std$level),na.rm=TRUE)
     file.name <- paste("images/temp/trend_",site,poll,".png",sep="")
@@ -427,15 +429,14 @@ shinyServer(function(input,output,session) {
       aoi <- "Custom"
       if (!is.null(input$areaSelect) & !is.null(input$areaSelectSelect)) {
         if (input$areaSelect != "none" & input$areaSelectSelect != "") { 
-          aoi <- as.character(dbGetQuery(db,paste("SELECT NAME FROM ",
+          aoi <- as.character(dbGetQuery(db,paste("SELECT name FROM ",
             switch(tolower(input$areaSelect),state="states",cbsa="cbsas",csa="csas"),"
-            WHERE CODE = '",input$areaSelectSelect,"'",sep="")))
+            WHERE code = '",input$areaSelectSelect,"'",sep="")))
         }
       }
       unit <- as.character(dbGetQuery(db,paste("SELECT DISTINCT units FROM standards
         WHERE pollutant = '",input$pollutantSelect,"'",sep="")))
-      curr.year <- as.numeric(substr(Sys.Date(),1,4)) - 
-        ifelse(as.numeric(substr(Sys.Date(),6,7)) > 4,1,2)
+      curr.year <- max(dbGetQuery(db,"SELECT DISTINCT year FROM annual"))
       ids <- unique(c(cor.table$site1,cor.table$site2)); N <- length(ids);
       dvs <- dbGetQuery(db,paste(
         "SELECT sites.site_id, dvs.pollutant, dvs.value
@@ -578,11 +579,11 @@ shinyServer(function(input,output,session) {
   })
   
   ## Download buttons
-  output$siteInfoDownload <- downloadHandler(filename=function() {
-    paste("siteinfo_",input$pollutantSelect,"_",gsub("-","",gsub(":","",
+  output$trendDataDownload <- downloadHandler(filename=function() {
+    paste("trenddata_",input$pollutantSelect,"_",gsub("-","",gsub(":","",
       gsub(" ","_",Sys.time()))),".csv",sep="")},content=function(file) {
     poll <- input$pollutantSelect
-    sites <- pollutantSites()[pollutantSites()$key %in% activeSites(),]
+    sites <- selectedSites()
     if (poll != "lead") {
       annual.data <- dbGetQuery(db,paste(
         "SELECT pollutant as poll, key, year, value AS ann FROM annual
@@ -620,32 +621,31 @@ shinyServer(function(input,output,session) {
       conc.data <- merge(annual.data,dv.data,by="key",all=TRUE)
     }
     out <- merge(sites,conc.data,by="key",all=TRUE)[,-1]
-    write.csv(out,file,row.names=FALSE)
+    write.csv(out,file,row.names=FALSE,na="")
   })
   
   output$areaServedDownload <- downloadHandler(filename=function() {
     paste("areaserved_",input$pollutantSelect,"_",gsub("-","",gsub(":","",
       gsub(" ","_",Sys.time()))),".csv",sep="")},content=function(file) {
     pop <- polygons()@data
-    sites <- dbGetQuery(db,paste("SELECT * FROM sites 
-        WHERE key IN ('",paste(pop$id,collapse="', '"),"')"),sep="")
+    sites <- selectedSites()
     out <- merge(sites,pop,by.x="key",by.y="id",all=TRUE)
     out <- out[,c("site_id","site_name","address","latitude","longitude",
-      "epa_region","state_name","county_name","cbsa_name","csa_title",
-      "area","ozone_prob","pm25_prob","population","male","female",
+      "epa_region","state_name","county_name","cbsa_name","csa_title","monitor_count",
+      "pollutants","area","ozone_prob","pm25_prob","population","male","female",
       "white","black","native","asian","islander","other","multiple","hispanic",
       "age_0_4","age_5_9","age_10_14","age_15_19","age_20_24","age_25_29",
       "age_30_34","age_35_39","age_40_44","age_45_49","age_50_54","age_55_59",
       "age_60_64","age_65_69","age_70_74","age_75_79","age_80_84","age_85_up")]
     colnames(out) <- c("AQS Site ID","Site Name","Address","Latitude","Longitude",
-      "EPA Region","State Name","County Name","CBSA Name","CSA Name","Area (km^2)",
-      "Ozone Exceedance Probability","PM2.5 Exceedance Probability","Total Population",
-      "Male","Female","Caucasian/White","African/Black","Native American","Asian",
-      "Pacific Islander","Other Race","Multiple Races","Hispanic/Latino",
+      "EPA Region","State Name","County Name","CBSA Name","CSA Name","Monitor County",
+      "Pollutants","Area (km^2)","Ozone Exceedance Probability","PM2.5 Exceedance Probability",
+      "Total Population","Male","Female","Caucasian/White","African/Black","Native American",
+      "Asian","Pacific Islander","Other Race","Multiple Races","Hispanic/Latino",
       "Age 0 to 4","Age 5 to 9","Age 10 to 14","Age 15 to 19","Age 20 to 24","Age 25 to 29",
       "Age 30 to 34","Age 35 to 39","Age 40 to 44","Age 45 to 49","Age 50 to 54","Age 55 to 59",
       "Age 60 to 64","Age 65 to 69","Age 70 to 74","Age 75 to 79","Age 80 to 84","Age 85 and Over")
-      write.csv(out,file=file,row.names=FALSE)                             
+      write.csv(out,file=file,row.names=FALSE,na="")                             
   })
   
   output$correlationDownload <- downloadHandler(filename=function() {
@@ -654,7 +654,7 @@ shinyServer(function(input,output,session) {
       out <- cormatTable()
       colnames(out) <- c("AQS Site ID 1","AQS Site ID 2","Distance (km)",
         "# Observations","Correlation","Mean Difference")
-      write.csv(out,file,row.names=FALSE)
+      write.csv(out,file,row.names=FALSE,na="")
   })
   
   output$removalBiasDownload <- downloadHandler(filename=function() {
@@ -667,8 +667,9 @@ shinyServer(function(input,output,session) {
         "Mean Removal Bias","Removal Bias Standard Deviation","Min Removal Bias",
         "Max Removal Bias","Mean Relative Bias (%)","Min Relative Bias (%)",
         "Max Relative Bias (%)")
-      write.csv(out,file,row.names=FALSE)
+      write.csv(out,file,row.names=FALSE,na="")
   })
   
   observe({input$mPTCPO*2})
+  onSessionEnded(function() { dbDisconnect(db) })
 })

@@ -1,11 +1,11 @@
 # NetAssess2020
-Tools for the upcoming 2020 Ambient Air Monitoring Network Assessments
+Tools for the 2020 5-year Ambient Air Monitoring Network Assessments
 
-Based on the NetAssess app from LADCO (https://github.com/LADCO/NetAssessApp)
+Based on the NetAssess app from LADCO (https://github.com/LADCO/NetAssessApp/)
 
 Author: Ben Wells, Office of Air Quality Planning and Standards, U.S. Environmental Protection Agency
 
-Latest Update: June 19, 2019
+Latest Update: June 25, 2019
 
 # Instructions for users
 0. You must have R installed on your local machine (if you don't have R, you can download it from cran.r-project.org)

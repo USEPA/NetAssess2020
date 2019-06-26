@@ -29,6 +29,23 @@ netAssess.shinyBindings.customAnchor = new Shiny.InputBinding();
     netAssess.layerGroups.sites.setVisibleSites(data);
 })
 
+Shiny.addCustomMessageHandler("updateNewSites", function(data) {
+  netAssess.layerGroups.newSites.clearLayers();
+  for(var i = 0; i < data.key.length; i++) {
+    var latlng = L.latLng({lat: data.latitude[i], lng: data.longitude[i]});
+    var props = {
+      key: data.key[i], site_id: data.site_id[i], 
+      site_name: data.site_name[i], address: data.address[i],
+      epa_region: data.epa_region[i], state_name: data.state_name[i], 
+      county_name: data.county_name[i], cbsa_name: data.cbsa_name[i],
+      csa_title: data.csa_title[i], monitor_count: data.monitor_count[i],
+      pollutants: data.pollutants[i], visible: data.visible[i]
+    }
+    var opts = {contextmenu: true}
+    netAssess.layerGroups.newSites.addSite(latlng, props, opts)   
+  }
+})
+
 Shiny.addCustomMessageHandler("displayPredefinedArea", function(data) {
   var x = L.featureGroup(null);
   for(var i = 0; i < data.coords.length; i++) {

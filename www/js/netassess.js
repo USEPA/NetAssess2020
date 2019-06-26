@@ -56,30 +56,17 @@ netAssess.layerGroups.sites = L.siteGroup({
   aoiLayer: netAssess.layerGroups.aoi,
   onEachSite: function(site) {
     po = "<span class = 'popup-text'><h4 class = 'header'>Site Information</h4>"
-    po = po + "<center><table class = 'popup-table'><tr>"
-    po = po + "<td>Site ID</td><td>"
-    for(si in site.properties.site_id) {
-      po = po + site.properties.site_id[si] + "<br />"
-    }
-    po = po + "</td></tr>"
-    po = po + "<tr><td>Site Name</td>"
-    po = po + "<td>" + site.properties.site_name + "</td></tr>"
-    po = po + "<tr><td>Address</td>"
-    po = po + "<td>" + site.properties.address + "</td></tr>"
-    po = po + "<tr><td>EPA Region</td>"
-    po = po + "<td>" + site.properties.epa_region + "</td></tr>"
-    po = po + "<tr><td>State</td>"
-    po = po + "<td>" + site.properties.state_name + "</td></tr>"
-    po = po + "<tr><td>County</td>"
-    po = po + "<td>" + site.properties.county_name + "</td></tr>"
-    po = po + "<tr><td>CBSA</td>"
-    po = po + "<td>" + site.properties.cbsa_name + "</td></tr>"
-    po = po + "<tr><td>CSA</td>"
-    po = po + "<td>" + site.properties.csa_title + "</td></tr>"
-    po = po + "<tr><td>Monitor Count</td>"
-    po = po + "<td>" + site.properties.monitor_count + "</td></tr>"
-    po = po + "<tr><td>Pollutants</td>"
-    po = po + "<td>" + site.properties.pollutants + "</td></tr>"
+    po = po + "<center><table class = 'popup-table'>"
+    po = po + "<tr><td>Site ID</td><td>" + site.properties.site_id + "</td></tr>"
+    po = po + "<tr><td>Site Name</td><td>" + site.properties.site_name + "</td></tr>"
+    po = po + "<tr><td>Address</td><td>" + site.properties.address + "</td></tr>"
+    po = po + "<tr><td>EPA Region</td><td>" + site.properties.epa_region + "</td></tr>"
+    po = po + "<tr><td>State</td><td>" + site.properties.state_name + "</td></tr>"
+    po = po + "<tr><td>County</td><td>" + site.properties.county_name + "</td></tr>"
+    po = po + "<tr><td>CBSA</td><td>" + site.properties.cbsa_name + "</td></tr>"
+    po = po + "<tr><td>CSA</td><td>" + site.properties.csa_title + "</td></tr>"
+    po = po + "<tr><td>Monitor Count</td><td>" + site.properties.monitor_count + "</td></tr>"
+    po = po + "<tr><td>Pollutants</td><td>" + site.properties.pollutants + "</td></tr>"
     po = po + "<tr><td colspan = 2 style = 'text-align: center; padding-top: 10px; border-right: none;'>Trends (click to enlarge)</td></tr>"
     po = po + "<tr><td colspan = 2 style = 'text-align: center; border-right: none;'><div class = 'popup-trend'><img src = 'images/notrend.png' /></div></center></td></tr>"
     po = po + "</table>"
@@ -91,20 +78,19 @@ netAssess.layerGroups.sites = L.siteGroup({
 netAssess.layerGroups.newSites = L.siteGroup({
   contextmenu: true,
   aoiLayer: netAssess.layerGroups.aoi,
-  visibilityTest: function(site) {
-    return (site.properties.poll.indexOf($("#pollutantSelect").val()) != -1) 
-  },
+  visibilityTest: function(site) { return (site.properties.visible) },
   onEachSite: function(site) {
     po = "<span class = 'popup-text'><h4 class = 'header'>New Site Information</h4>"
     po = po + "<center><table class = 'popup-table'>"
-    po = po + "<tr><td>Site Name</td><td>" + site.properties.name + "</td></tr>"
-    po = po + "<tr><td>Pollutants</td><td>"
-    for(var i = 0; i < site.properties.poll.length; i++) {
-      po = po + site.properties.poll[i] + " "
-    }
-    po = po + "</td></tr>"
+    po = po + "<tr><td>Site Name</td><td>" + site.properties.site_name + "</td></tr>"
+    po = po + "<tr><td>EPA Region</td><td>" + site.properties.epa_region + "</td></tr>"
+    po = po + "<tr><td>State</td><td>" + site.properties.state_name + "</td></tr>"
+    po = po + "<tr><td>County</td><td>" + site.properties.county_name + "</td></tr>"
+    po = po + "<tr><td>CBSA</td><td>" + site.properties.cbsa_name + "</td></tr>"
+    po = po + "<tr><td>CSA</td><td>" + site.properties.csa_title + "</td></tr>"
+    po = po + "<tr><td>Pollutants</td><td>" + site.properties.pollutants + "</td></tr>"
     po = po + "</table></span>"
-    site.bindPopup(po,{minWidth: 150});
+    site.bindPopup(po,{minWidth: 300});
   },
   styles: {
     selected: {radius: 5, opacity: 0.67, fillOpacity: 0.67, fillColor: "#40ff40", color: "#000", weight: 1},
@@ -213,7 +199,11 @@ netAssess.setNewSite = function(e) {
   netAssess.layerGroups.newSites.addSite(latlng, props, opts)
   netAssess.layerGroups.newSiteSelection.clearLayers();
   netAssess.floaters.newSite.close();
-  netAssess.data.newSites[props.key] = {key: props.key, name: props.name, lat: latlng.lat, lng: latlng.lng, poll: props.poll, properties: props}
+  netAssess.data.newSites[props.key] = {
+    key: props.key, name: props.name, 
+    lat: latlng.lat, lng: latlng.lng, 
+   poll: props.poll, properties: { }
+  }
   document.getElementById("newSites").updateAnchor(netAssess.data.newSites)
 }
 
@@ -294,8 +284,8 @@ $("#areaServedButton").on("click", function(event) {
 })
 
 $("#cormatButton").on("click", function(event) {
-  netAssess.errorChecking.cormat(event);
   $("#correlationDownload").parents("tr").removeClass("disabled");
+  netAssess.errorChecking.cormat(event);
 })
 
 $("#rembiasButton").on("click", function(event) {

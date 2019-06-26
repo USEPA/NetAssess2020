@@ -38,6 +38,14 @@ shinyServer(function(input,output,session) {
     ns$pollutants <- unlist(lapply(poll,function(x) paste(x,collapse=", ")))
     return(ns)
   })
+
+  observe({
+    if (is.null(input$pollutantSelect)) { return() }
+    if (is.null(newSites())) { return() }
+    ns <- newSites()
+    ns$visible <- unlist(lapply(input$newSites,function(x) (input$pollutantSelect %in% x$poll)))
+    session$sendCustomMessage(type="updateNewSites",ns)
+  })
   
   visibleSites <- reactive({
     ps <- pollutantSites()
@@ -296,7 +304,7 @@ shinyServer(function(input,output,session) {
     if (is.null(input$pollutantSelect)) { return(list(src="images/notrend.png")) }
     if (input$pollutantSelect == "none") { return(list(src="images/notrend.png")) }
     if (is.null(input$popupID)) { return(list(src="images/notrend.png")) }
-    site <- input$popupID
+    site <- input$popupID[1]
     poll <- input$pollutantSelect
     annual.data <- dbGetQuery(db,paste(
       "SELECT annual.pollutant AS poll,
@@ -326,7 +334,7 @@ shinyServer(function(input,output,session) {
     if (poll %in% c("co","lead")) { std <- std[2,] }
     curr.year <- max(dbGetQuery(db,"SELECT DISTINCT year FROM annual"))
     max.na <- function(x) { return(ifelse(all(is.na(x)),NA,max(x,na.rm=TRUE))) }
-    ymax <- pmax(1.2*max.na(annual.data$annual_value),1.2*max(std$level),na.rm=TRUE)
+    ymax <- pmax(1.2*max.na(annual.data$annual_value),1.2*max.na(dv.data$design_value),1.2*max(std$level),na.rm=TRUE)
     file.name <- paste("images/temp/trend_",site,poll,".png",sep="")
     png(filename=paste("www",file.name,sep="/"),width=1200,height=900)
     par(mar=c(6,6,2,1),mgp=c(4.5,1,0),cex.axis=2,cex.lab=2,cex.main=2,las=2)

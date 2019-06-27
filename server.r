@@ -89,17 +89,9 @@ shinyServer(function(input,output,session) {
   
   ## Area of Interest
   areaOfInterest <- reactive({
-    aoi <- input$areaOfInterest[[1]]
-    if (is.null(names(aoi[[1]]))) {
-      polygons <- lapply(aoi,function(p) {
-        m <- matrix(as.numeric(do.call(rbind,p)),ncol=2)
-        Polygon(coords=rbind(m,m[1,])[,c(2,1)],hole=FALSE)
-      })
-    } else {
-      m <- matrix(as.numeric(do.call(rbind,aoi)),ncol=2)
-      polygons <- list(Polygon(coords=rbind(m,m[1,])[,c(2,1)],hole=FALSE))
-    }
-    polygons <- SpatialPolygons(list(Polygons(polygons,"aoi")))
+    aoi <- lapply(input$areaOfInterest,function(x) t(matrix(unlist(x),nrow=2)))
+    poly <- lapply(aoi,function(x) Polygon(coords=rbind(x,x[1,])[,c(2,1)],hole=FALSE))
+    polygons <- SpatialPolygons(list(Polygons(poly,"aoi")))
     return(polygons)
   })
   
@@ -206,12 +198,11 @@ shinyServer(function(input,output,session) {
     ov <- over(tracts,v)
     t <- cbind(tracts@data,ov)
     t <- t[!is.na(t$id),]
-    d <- aggregate(t[,c(grep("area",colnames(t)),grep("integer",lapply(t,class)))],
-      by=list(as.character(t$id)),FUN=sum,na.rm=TRUE)
-    d$area <- round(d$area)
-    d <- cbind(d,aggregate(t[,grep("prob",colnames(t))],
-      by=list(as.character(t$id)),FUN=prob.bin)[,-1])
-    v@data <- merge(v@data,d,by.x="id",by.y="Group.1",all.x=TRUE,all.y=FALSE)
+    d <- apply(t[,c(grep("area",colnames(t)),grep("integer",lapply(t,class)))],2,
+      function(x) tapply(x,list(t$id),function(y) round(sum(y,na.rm=TRUE))))
+    d <- data.frame(id=rownames(d),d,apply(t[,grep("prob",colnames(t))],2,
+      function(x) tapply(x,list(t$id),prob.bin)))
+    v@data <- merge(v@data,d,by="id",all.x=TRUE,all.y=FALSE)
     return(v)
   })
   
@@ -565,7 +556,7 @@ shinyServer(function(input,output,session) {
       weights[is.na(values)] <- NA
       num <- apply(values[,-1]*(1/(weights[,-1]^2)),1,sum,na.rm=TRUE)
       den <- apply(1/(weights[,-1]^2),1,sum,na.rm=TRUE)
-      avg <- data.frame(sample_date=values[num > 0,1],estimate=num[den > 0]/den[den > 0])
+      avg <- data.frame(sample_date=values[den > 0,1],estimate=num[den > 0]/den[den > 0])
       bias <- merge(site.data,avg,by="sample_date")
       d <- switch(input$pollutantSelect,co=1,lead=2,no2=0,ozone=3,pm10=0,pm25=1,so2=0,0)
       bias$diff <- bias$estimate - bias$value

@@ -268,16 +268,19 @@ shinyServer(function(input,output,session) {
     bar.hgts <- unlist(df[which(df$id == input$clickedAreaServed),pop.cols])
     ymax <- 10000*ceiling(max(c(bar.hgts,10000),na.rm=TRUE)/10000)
     yspace <- 10^floor(log(ymax,base=10))/ifelse(substr(ymax,1,1) > 5,1,ifelse(substr(ymax,1,1) > 2,2,5))
+    ymax <- ymax + yspace/2
     par(mar=c(10,8,2,0),las=2,cex.main=2,cex.axis=2)
     plot(x=NULL,y=NULL,type='n',axes=FALSE,xaxs='i',xlim=c(0,30),xlab="",yaxs='i',ylim=c(0,ymax),ylab="",
       main=paste("Demographics for Area Served by AQS Site ID =",site.id))
     axis(side=1,at=c(1,2,seq(3.5,10.5,1),seq(12,29,1)),labels=pop.cols)
     axis(side=2,at=seq(0,ymax,yspace),labels=prettyNum(sprintf("%8d",seq(0,ymax,yspace)),big.mark=","))
-    rect(xleft=0,ybottom=0,xright=30,ytop=ymax,col='gray90')
+    rect(xleft=0,ybottom=0,xright=30,ytop=ymax,col="gray85")
+    abline(h=seq(from=yspace,to=ymax,by=yspace),col="white")
     for (i in 1:length(pop.cols)) {
       xp <- i + 0.5*(i > 2) + 0.5*(i > 10)
       rect(xleft=xp-0.5,ybottom=0,xright=xp+0.5,ytop=bar.hgts[i],col=colors[i])
-    }  
+    }
+    box()
   },width=1200,height=900)
   
   output$naaqsProb <- renderText({
@@ -334,7 +337,7 @@ shinyServer(function(input,output,session) {
       main=paste(ifelse(poll == "pm25","",std$avg_time),std$poll_name[1],
         "Trend for AQS Site ID =",site.id))
     axis(side=1,at=c(2000:curr.year),labels=c(2000:curr.year))
-    rect(xleft=1999.8,xright=(curr.year+0.2),ybottom=0,ytop=ymax,col="grey85")
+    rect(xleft=1999.8,xright=(curr.year+0.2),ybottom=0,ytop=ymax,col="gray85")
     abline(h=seq(par("yaxp")[1],par("yaxp")[2],length.out=(par("yaxp")[3]+1)),col="white")
     abline(h=std$level[1],lty=1,lwd=2,col="black"); box();
     legend.args <- data.frame(col="black",lty=1,pch=NA,legend="NAAQS Level")
@@ -670,5 +673,4 @@ shinyServer(function(input,output,session) {
   })
   
   observe({input$mPTCPO*2})
-  onSessionEnded(function() { dbDisconnect(db) })
 })

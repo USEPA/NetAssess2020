@@ -610,7 +610,7 @@ shinyServer(function(input,output,session) {
         colnames(dv.data)[cols],sep=".")
     }
     if (poll == "co") { 
-      colnames(annual.data) <- gsub("ann","dv",colnames(co))
+      colnames(annual.data) <- gsub("ann","dv",colnames(annual.data))
       conc.data <- annual.data
     }
     if (poll == "lead") { conc.data <- dv.data }

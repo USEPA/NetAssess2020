@@ -99,13 +99,13 @@ netAssess.layerGroups.newSites = L.siteGroup({
 })
 
 netAssess.floaters = {
-  aoi: $.floater("#aoiFloater", {title: "Area of Interest"}),
-  newSite: $.floater("#newSiteFloater", {title: "New Site", close: false, minimize: false}),
-  areaServed: $.floater("#areaServedFloater", {title: "Area Served Information", width: "350px", top: "50px", right: "50px"}),
-  cormat: $.floater("#cormatFloater", {title: "Correlation Matrix", width: "800px", height: "640px", left: "50px", top: "50px", resize: true}),
-  popup: $.floater("#popupFloater", {title: "Popup", width: "800px", height: "640px", left: "50px", top: "50px", resize: true, minimize: false}),
-  legend: $.floater("#legendFloater", {title: "Legend", close: false, width: "400px", right: "10px", bottom: "10px"}),
-  download: $.floater("#downloadFloater", {title: "Download Data", minimize: false, width: "300px", top: "50px", left: "50px"})
+  aoi: $.floater("#aoiFloater", {title: "Area of Interest", close: true, minimize: false, resize: false, width: "400px", top: "50px", left: "50px"}),
+  newSite: $.floater("#newSiteFloater", {title: "New Site", close: false, minimize: false, resize: false, width: "400px", top: "50px", left: "50px"}),
+  areaServed: $.floater("#areaServedFloater", {title: "Area Served", close: true, minimize: false, resize: false, width: "350px", top: "50px", right: "50px"}),
+  cormat: $.floater("#cormatFloater", {title: "Correlation Matrix", close: true, minimize: false, resize: true, width: "800px", height: "640px", top: "50px", left: "50px"}),
+  popup: $.floater("#popupFloater", {title: "Chart", close: true, minimize: false, resize: true, width: "800px", height: "640px", top: "50px", left: "50px"}),
+  legend: $.floater("#legendFloater", {title: "Legend", close: false, minimize: true, resize: false, width: "400px", bottom: "10px", left: "10px"}),
+  download: $.floater("#downloadFloater", {title: "Download Data", close: true, minimize: false, resize: false, width: "300px", top: "50px", right: "50px"})
 }
 
 $("#aoiButton").on("click", netAssess.floaters.aoi.open)

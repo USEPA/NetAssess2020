@@ -492,7 +492,7 @@ shinyServer(function(input,output,session) {
       par(mar=c(0,mar.axis,0,0))
       plot(x=NULL,y=NULL,type='n',axes=FALSE,xaxs='i',xlim=c(0,1),xlab="",
         yaxs='i',ylim=c(0,1),ylab="")
-      text(x=0,y=0.8,pos=4,cex=3,labels="Values in lower triangle = # of obs used in correleation")
+      text(x=0,y=0.8,pos=4,cex=3,labels="Values in lower triangle = # of obs used in correlation")
       text(x=0,y=0.5,pos=4,cex=3,labels="Values in upper triangle = Distance in km between sites")
       text(x=0,y=0.2,pos=4,cex=3,labels="Values along the diagonal = Most recent design values")
       text(x=0.5,y=0.8,pos=4,cex=3,labels=paste("Pollutant =",poll))
